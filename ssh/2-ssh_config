@@ -1,3 +1,4 @@
+# ssh configuration to refusse authentication
 # ~/.ssh/config
 
 Host myserver

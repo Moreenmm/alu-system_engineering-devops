@@ -7,12 +7,23 @@ Host myserver
     IdentityFile ~/.ssh/school
     PasswordAuthentication no -->
 
-    #!/usr/bin/env bash
+#!/usr/bin/env bash
 # SSH client configuration
-# configured to use the private key ~/.ssh/school
+# Configured to use the private key ~/.ssh/school
+# Configured to refuse password authentication
+
 Include /etc/ssh/ssh_config.d/*.conf
-Host *
-    SendEnv LANG LC_*
-    HashKnownHosts yes
-    GSSAPIAuthentication yes
+
+# Public server connection (use when outside your private network)
+Host myserver-public
+    HostName 41.81.177.62
+    User ubuntu
     IdentityFile ~/.ssh/school
+    PasswordAuthentication no
+
+# Private server connection (use when inside the same private network/VPC)
+Host myserver-private
+    HostName 172.31.140.153
+    User ubuntu
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no

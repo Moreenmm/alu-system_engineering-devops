@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Script that installs nginx and configures a creative 404 page
+
+sudo apt update -y
+sudo apt install nginx -y
+
+# Create a beautiful custom 404 page
+cat << 'EOF' > /var/www/html/custom_404.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>404 Not Found</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #ff6f61, #ffcc70);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      text-align: center;
+      padding-top: 10%;
+      margin: 0;
+    }
+    h1 {
+      font-size: 100px;
+      margin: 0;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    p {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    a {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 12px 24px;
+      background: #fff;
+      color: #ff6f61;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    a:hover {
+      background: #ffe0d5;
+    }
+  </style>
+</head>
+<body>
+  <h1>404</h1>
+  <p>Ceci n'est pas une page</p>
+  <p>Oops! You seem lost in cyberspace.</p>
+  <a href="/">Go Back Home</a>
+</body>
+</html>
+EOF
+
+# Configure nginx to use the custom 404 page
+sed -i '/server_name _;/a \    error_page 404 /custom_404.html;\n    location = /custom_404.html {\n        root /var/www/html;\n        internal;\n    }' /etc/nginx/sites-available/default
+
+# Restart nginx
+sudo service nginx restart
+
+

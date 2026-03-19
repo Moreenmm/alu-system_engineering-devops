@@ -1,37 +1,38 @@
 #!/usr/bin/env bash
-# Script that installs and configures HAProxy as a load balancer
+# Installs and configures HAProxy on a new Ubuntu server to load-balance two web servers
 
+# Replace these IPs with your actual web servers
+WEB1_IP="44.211.255.175"
+WEB2_IP="52.71.70.103"
+
+# Update package list and install HAProxy
 apt-get update -y
 apt-get install -y haproxy
 
-# Configure HAProxy
-cat << 'EOF' > /etc/haproxy/haproxy.cfg
+# Enable HAProxy to start on boot
+sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+
+# Overwrite HAProxy config with load balancing configuration
+cat <<EOF > /etc/haproxy/haproxy.cfg
 global
-    log /dev/log    local0
-    log /dev/log    local1 notice
     daemon
+    maxconn 256
 
 defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
+    mode http
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
 
 frontend http_front
     bind *:80
-    default_backend web_back
+    default_backend web_servers
 
-backend web_back
+backend web_servers
     balance roundrobin
-    server web-01 13.218.150.129:80 check
-    server web-02 13.218.167.47:80 check
+    server web-01 $WEB1_IP:80 check
+    server web-02 $WEB2_IP:80 check
 EOF
 
-# Enable HAProxy to start at boot
-sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
-
-# Restart HAProxy
+# Restart HAProxy to apply configuration
 service haproxy restart
